@@ -36,7 +36,7 @@
 #include <tf/transform_datatypes.h>
 #include <tf/transform_broadcaster.h>
 
-#include <opencv/cv.h>
+#include <opencv2/opencv.hpp>
  
 #include <vector>
 #include <cmath>
@@ -347,20 +347,4 @@ float pointDistance(PointType p1, PointType p2)
 }
 
 Eigen::Matrix4f Matching_Transform = Eigen::Matrix4f::Identity(); 
-// initial by column, first: 
-Matching_Transform (0, 0) = -0.9931;
-Matching_Transform (0, 1) = 0.1168;
-Matching_Transform (0, 2) = -0.0133;
-// second column
-Matching_Transform (0, 0) = -0.1169;
-Matching_Transform (0, 1) = -0.9931;
-Matching_Transform (0, 2) = 0.0013;
-// 3th column
-Matching_Transform (0, 0) = -0.0131;
-Matching_Transform (0, 1) = 0.0028;
-Matching_Transform (0, 2) = 0.9999;
-// 4th column - translation 
-Matching_Transform (0, 0) = 0.0274;
-Matching_Transform (0, 1) = -0.1502;
-Matching_Transform (0, 2) = 0.0399;
 #endif
