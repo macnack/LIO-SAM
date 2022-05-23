@@ -355,7 +355,6 @@ public:
     bool saveMapService(lio_sam::save_mapRequest& req, lio_sam::save_mapResponse& res)
     {
       string saveMapDirectory;
-
       cout << "****************************************************" << endl;
       cout << "Saving map to pcd files ..." << endl;
       if(req.destination.empty()) saveMapDirectory = std::getenv("HOME") + savePCDDirectory;
@@ -363,7 +362,13 @@ public:
       cout << "Save destination: " << saveMapDirectory << endl;
       // create directory and remove old files;
       int unused = system((std::string("exec rm -r ") + saveMapDirectory).c_str());
-      unused = system((std::string("mkdir -p ") + saveMapDirectory).c_str());
+      // create directory for single scan
+      string surfs = "/scans/surfs";
+      string corners = "/scans/corners";
+      unused = system((std::string("mkdir -p ") + saveMapDirectory + surfs).c_str());
+      unused = system((std::string("mkdir -p ") + saveMapDirectory + corners).c_str());
+      unused = system((std::string("touch ") + saveMapDirectory + "/scans/poses.txt").c_str());
+            ofstream output(saveMapDirectory + "/scans/" + "poses.txt", ios::out);
       // save key frame transformations
       pcl::io::savePCDFileBinary(saveMapDirectory + "/trajectory.pcd", *cloudKeyPoses3D);
       pcl::io::savePCDFileBinary(saveMapDirectory + "/transformations.pcd", *cloudKeyPoses6D);
@@ -373,10 +378,15 @@ public:
       pcl::PointCloud<PointType>::Ptr globalSurfCloud(new pcl::PointCloud<PointType>());
       pcl::PointCloud<PointType>::Ptr globalSurfCloudDS(new pcl::PointCloud<PointType>());
       pcl::PointCloud<PointType>::Ptr globalMapCloud(new pcl::PointCloud<PointType>());
+
       for (int i = 0; i < (int)cloudKeyPoses3D->size(); i++) {
           *globalCornerCloud += *transformPointCloud(cornerCloudKeyFrames[i],  &cloudKeyPoses6D->points[i]);
           *globalSurfCloud   += *transformPointCloud(surfCloudKeyFrames[i],    &cloudKeyPoses6D->points[i]);
           cout << "\r" << std::flush << "Processing feature cloud " << i << " of " << cloudKeyPoses6D->size() << " ...";
+          // extract single surf and corner
+          pcl::io::savePCDFileBinary(saveMapDirectory + corners + "/" + std::to_string(i).append(".pcd"), *transformPointCloud(cornerCloudKeyFrames[i],  &cloudKeyPoses6D->points[i]));
+          pcl::io::savePCDFileBinary(saveMapDirectory + surfs + "/" + std::to_string(i).append(".pcd"), *transformPointCloud(surfCloudKeyFrames[i],    &cloudKeyPoses6D->points[i]));
+          cout << "\r" << std::flush << "Processing single surf and corner " << " of " << cloudKeyPoses6D->size() << " ...";
       }
 
       if(req.resolution != 0)
@@ -414,7 +424,14 @@ public:
 
       cout << "****************************************************" << endl;
       cout << "Saving map to pcd files completed\n" << endl;
-
+      for ( auto &pose : globalPath.poses ){
+      	output << pose.header.stamp << " " << pose.pose.position.x << " ";
+      	output << pose.pose.position.y << " " << pose.pose.position.z << " ";
+	output << pose.pose.orientation.x << " " << pose.pose.orientation.y << " ";
+	output << pose.pose.orientation.z << " " << pose.pose.orientation.w << "\n";    	
+      }
+      output.close();
+      cout << "Getting poses.txt...\n" << endl;
       return true;
     }
 
