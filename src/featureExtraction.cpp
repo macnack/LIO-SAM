@@ -1,6 +1,7 @@
 #include "utility.h"
 #include "lio_sam/cloud_info.h"
 
+<<<<<<< Updated upstream
 // initial by column, first: 
 Matching_Transform(0, 0) = -0.9931;
 Matching_Transform(0, 1) = 0.1168;
@@ -17,6 +18,8 @@ Matching_Transform(0, 2) = 0.9999;
 Matching_Transform(0, 0) = 0.0274;
 Matching_Transform(0, 1) = -0.1502;
 Matching_Transform(0, 2) = 0.0399;
+=======
+>>>>>>> Stashed changes
 
 struct smoothness_t{ 
     float value;
@@ -264,15 +267,36 @@ public:
 
     void publishFeatureCloud()
     {
+        // initial by column, first: 
+        Matching_Transform (0, 0) = -0.9931;
+        Matching_Transform (0, 1) = 0.1168;
+        Matching_Transform (0, 2) = -0.0133;
+        // second column
+        Matching_Transform (1, 0) = -0.1169;
+        Matching_Transform (1, 1) = -0.9931;
+        Matching_Transform (1, 2) = 0.0013;
+        // 3th column
+        Matching_Transform (2, 0) = -0.0131;
+        Matching_Transform (2, 1) = 0.0028;
+        Matching_Transform (2, 2) = 0.9999;
+        // 4th column - translation 
+        Matching_Transform (3, 0) = 0.0274;
+        Matching_Transform (3, 1) = -0.1502;
+        Matching_Transform (3, 2) = 0.0399;
         // free cloud info memory
         freeCloudInfoMemory();
         // Transform extracted features by initial matching matrix
         pcl::PointCloud<PointType>::Ptr transformed_surfaceCloud(new pcl::PointCloud<PointType>());
         pcl::PointCloud<PointType>::Ptr transformed_cornerCloud(new pcl::PointCloud<PointType>());
+<<<<<<< Updated upstream
         pcl::transformPointCloud(*cornerCloud, *transformed_cornerCloud, Matching_Transform);
         pcl::transformPointCloud(*surfaceCloud, *transformed_surfaceCloud, Matching_Transform);
+=======
+        pcl::tranformPointCloud(*cornerCloud, *transformed_cornerCloud, Matching_Transform)
+        pcl::tranformPointCloud(*surfaceCloud, *transformed_surfaceCloud, Matching_Transform)
+>>>>>>> Stashed changes
         // save newly extracted features
-        cloudInfo.cloud_corner  = publishCloud(pubCornerPoints,  transformed_cloud,  cloudHeader.stamp, lidarFrame);
+        cloudInfo.cloud_corner  = publishCloud(pubCornerPoints,  transformed_cornerCloud,  cloudHeader.stamp, lidarFrame);
         cloudInfo.cloud_surface = publishCloud(pubSurfacePoints, transformed_surfaceCloud, cloudHeader.stamp, lidarFrame);
         // publish to mapOptimization
         pubLaserCloudInfo.publish(cloudInfo);
