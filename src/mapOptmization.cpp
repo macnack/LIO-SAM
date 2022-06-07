@@ -17,6 +17,9 @@
 
 #include <gtsam/nonlinear/ISAM2.h>
 
+// Open 3d
+#include "open3d/Open3D.h"
+
 using namespace gtsam;
 
 using symbol_shorthand::X; // Pose3 (x,y,z,r,p,y)
