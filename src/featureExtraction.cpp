@@ -268,8 +268,8 @@ public:
         // Transform extracted features by initial matching matrix
         pcl::PointCloud<PointType>::Ptr transformed_surfaceCloud(new pcl::PointCloud<PointType>());
         pcl::PointCloud<PointType>::Ptr transformed_cornerCloud(new pcl::PointCloud<PointType>());
-        pcl::tranformPointCloud(*cornerCloud, *transformed_cornerCloud, Matching_Transform)
-        pcl::tranformPointCloud(*surfaceCloud, *transformed_surfaceCloud, Matching_Transform)
+        pcl::transformPointCloud(*cornerCloud, *transformed_cornerCloud, Matching_Transform)
+        pcl::transformPointCloud(*surfaceCloud, *transformed_surfaceCloud, Matching_Transform)
         // save newly extracted features
         cloudInfo.cloud_corner  = publishCloud(pubCornerPoints,  transformed_cornerCloud,  cloudHeader.stamp, lidarFrame);
         cloudInfo.cloud_surface = publishCloud(pubSurfacePoints, transformed_surfaceCloud, cloudHeader.stamp, lidarFrame);
