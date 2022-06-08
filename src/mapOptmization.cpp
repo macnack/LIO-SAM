@@ -54,6 +54,9 @@ class mapOptimization : public ParamServer
 {
 
 public:
+    //load Map
+    pcl::PointCloud<PointType>::Ptr loadGlobalMap;
+    ros::Publisher pubLaserLoadedCloud;
 
     // gtsam
     NonlinearFactorGraph gtSAMgraph;
@@ -159,6 +162,14 @@ public:
 
     mapOptimization()
     {
+        //LOAD MAP
+        string loadMapDirectory = "../";
+        pcl::io::loadPCDFile(loadMapDirectory , *loadGlobalMap);
+        pcl::toROSMsg(*loadGlobalMap, tempGlobalMap);
+        //?
+        pubLaserLoadedCloud      = nh.advertise<sensor_msgs::PointCloud2>("lio_sam/mapping/load_map", 1);
+        pubLaserLoadedCloud.publish(tempGlobalMap);
+        
         ISAM2Params parameters;
         parameters.relinearizeThreshold = 0.1;
         parameters.relinearizeSkip = 1;
