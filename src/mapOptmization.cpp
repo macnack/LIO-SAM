@@ -56,6 +56,7 @@ class mapOptimization : public ParamServer
 public:
     //load Map
     pcl::PointCloud<PointType>::Ptr loadGlobalMap;
+    sensor_msgs::PointCloud2 tempGlobalMap;
     ros::Publisher pubLaserLoadedCloud;
 
     // gtsam
