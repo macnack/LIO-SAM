@@ -346,5 +346,5 @@ float pointDistance(PointType p1, PointType p2)
     return sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y) + (p1.z-p2.z)*(p1.z-p2.z));
 }
 
-Eigen::Matrix4f Matching_Transform = Eigen::Matrix4f::Identity(); 
+
 #endif
