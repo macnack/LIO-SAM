@@ -18,8 +18,8 @@
 string PathScan = "/Downloads/REGISTRATION";
 bool prepare_dataset = false;
 std::shared_ptr<open3d::geometry::PointCloud> target_GlobalMap;
-vector<open3d::geometry::PointCloud> target_scans_down;
-vector<open3d::pipelines::registration::Feature> target_scans_fpfh;
+vector<std::shared_ptr<open3d::geometry::PointCloud>> target_scans_down;
+vector<std::shared_ptr<open3d::geometry::PointCloud>> target_scans_fpfh;
 Eigen::Vector3d color_target = Eigen::Vector3d(1, 0.706, 0);
 Eigen::Vector3d color_source = Eigen::Vector3d(0, 0.651, 1);
 Eigen::Vector3d color_source_last = Eigen::Vector3d(1, 0, 0);
@@ -342,8 +342,8 @@ bool prepareDataset()
         path = std::getenv("HOME") + PathScan + "/data/merged/" + std::to_string(i) + ".pcd";
         target = open3d::io::CreatePointCloudFromFile(path);
         std::tie(down, fpfh) = preprocess_point_cloud(*target);
-        target_scans_down.push_back(*down);
-        target_scans_fpfh.push_back(*fpfh);
+        target_scans_down.push_back(std::move(down));
+        target_scans_fpfh.push_back(std::move(fpfh));
     }
     return true;
 }
