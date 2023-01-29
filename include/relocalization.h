@@ -1,4 +1,5 @@
 #include "open3d/Open3D.h"
+#include <algorithm>
 #define Scans 291
 #define NormalEstimationRadius 1.0
 #define FeatureVoxelSize 0.5
@@ -346,4 +347,14 @@ bool prepareDataset()
         target_scans_fpfh.push_back(std::move(fpfh));
     }
     return true;
+}
+
+bool CompareRegistration(const open3d::pipelines::registration::RegistrationResult& a, const open3d::pipelines::registration::RegistrationResult& b){
+    if (a.fitness_ > b.fitness_) return true;
+    if (a.fitness_ < b.fitness_) return false;
+    
+    if (a.inlier_rmse_ < b.inlier_rmse_) return true;
+    if (a.inlier_rmse_ > b.inlier_rmse_) return false;
+    
+    return false;
 }

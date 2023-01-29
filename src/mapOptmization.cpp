@@ -384,6 +384,10 @@ public:
         int scan_number = (int)cloudKeyPoses3D->size();
         if (scan_number != 0)
         {
+            if (req.destination == "roboust")
+            {
+                vector<std::shared_ptr<open3d::pipelines::registration::RegistrationResult>> vec;
+            }
             // export path from start
             cout << "FOR LOOP" << endl;
             string scan_path = std::getenv("HOME") + PathScan + "/path.pcd";
@@ -422,40 +426,54 @@ public:
                 {
                     cout << "Processing registration of " << j << " local scan and " << i << " of Global Map\n";
                     result_RANSAC = execute_fast_global_registration(*source_down, *source_fpfh, target_scans_down[i], target_scans_fpfh[i]);
-                    if (result_RANSAC.fitness_ > 0.8)
+                    if (req.destination == "greedy")
                     {
-                        cout << "Fitness reached above 80%.\nFitness score: " << result_ICP.fitness_ << " for Global Registration.\n";
-                        result_ICP = execute_ICP_registration(*source_down, target_scans_down[i], result_RANSAC.transformation_);
-                        if (result_ICP.fitness_ > 0.9)
+                        if (result_RANSAC.fitness_ > 0.8)
                         {
-                            std::shared_ptr<open3d::geometry::PointCloud> source_temp(new open3d::geometry::PointCloud);
-                            std::shared_ptr<open3d::geometry::PointCloud> target_temp(new open3d::geometry::PointCloud);
-                            source->PaintUniformColor(color_source);
-                            *source_temp = *source;
-                            *target_temp = target_scans_down[i];
-                            cout << "Fitness reached: " << result_ICP.fitness_ << " for ICP.\n";
-                            cout << "ICP transformation: \n";
-                            cout << result_ICP.transformation_ << "\n";
-                            cout << result_ICP.fitness_ << " " << result_ICP.inlier_rmse_ << "\n";
-                            res.success = 1;
-                            source->Transform(result_ICP.transformation_);
-                            source_pose->Transform(result_ICP.transformation_);
-                            source_temp->Transform(result_RANSAC.transformation_);
-                            source_path->Transform(result_ICP.transformation_);
-                            source_path->VoxelDownSample(0.8);
-                            target_GlobalMap->VoxelDownSample(0.8);
-                            target_temp->PaintUniformColor(color_target);
-                            open3d::visualization::DrawGeometries({source_temp, target_temp}, "Result Global Registration");
-                            open3d::visualization::DrawGeometries({source, target_temp}, "Result Global Registration + ICP");
-                            open3d::visualization::DrawGeometries({source_path, source_pose, target_GlobalMap}, "Localization");
-                            res.success = 1;
-                            return true;
+                            cout << "Fitness reached above 80%.\nFitness score: " << result_ICP.fitness_ << " for Global Registration.\n";
+                            result_ICP = execute_ICP_registration(*source_down, target_scans_down[i], result_RANSAC.transformation_);
+
+                            if (result_ICP.fitness_ > 0.9)
+                            {
+                                std::shared_ptr<open3d::geometry::PointCloud> source_temp(new open3d::geometry::PointCloud);
+                                std::shared_ptr<open3d::geometry::PointCloud> target_temp(new open3d::geometry::PointCloud);
+                                source->PaintUniformColor(color_source);
+                                *source_temp = *source;
+                                *target_temp = target_scans_down[i];
+                                cout << "Fitness reached: " << result_ICP.fitness_ << " for ICP.\n";
+                                cout << "ICP transformation: \n";
+                                cout << result_ICP.transformation_ << "\n";
+                                cout << result_ICP.fitness_ << " " << result_ICP.inlier_rmse_ << "\n";
+                                res.success = 1;
+                                source->Transform(result_ICP.transformation_);
+                                source_pose->Transform(result_ICP.transformation_);
+                                source_temp->Transform(result_RANSAC.transformation_);
+                                source_path->Transform(result_ICP.transformation_);
+                                source_path->VoxelDownSample(0.8);
+                                target_GlobalMap->VoxelDownSample(0.8);
+                                target_temp->PaintUniformColor(color_target);
+                                open3d::visualization::DrawGeometries({source_temp, target_temp}, "Result Global Registration");
+                                open3d::visualization::DrawGeometries({source, target_temp}, "Result Global Registration + ICP");
+                                open3d::visualization::DrawGeometries({source_path, source_pose, target_GlobalMap}, "Localization");
+                                res.success = 1;
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            cout << "Fitness score: " << result_ICP.fitness_ << " for Global Registration.\n";
                         }
                     }
                     else
                     {
-                        cout << "Fitness score: " << result_ICP.fitness_ << " for Global Registration.\n";
+                        vec.push_back(result_RANSAC);
+                        if (i == target_scans_down.size() - 1)
+                            break;
                     }
+                }
+                if (req.destination == "roboust")
+                {
+                    std::sort(vec.begin(), vec.end(), CompareRegistration);
                 }
             }
         }
